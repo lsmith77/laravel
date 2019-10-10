@@ -57,17 +57,22 @@ class SourceSaver
 
             $translations = $this->applySourceEditInTranslations($translations, $sourceEdit);
 
-            // Leave the extra newline at the end
-            $fileContent = <<<'EOT'
+            if (class_exists('Themsaid\Langman\Manager')) {
+                $manager = new \Themsaid\Langman\Manager(new Filesystem, '', [], []);
+                $manager->writeFile($groupFile, $translations);
+            } else {
+                // Leave the extra newline at the end
+                $fileContent = <<<'EOT'
 <?php
 return {{translations}};
 
 EOT;
 
-            $prettyTranslationsExport = $this->prettyVarExport->call($translations, ['array-align' => true]);
-            $fileContent  = str_replace('{{translations}}', $prettyTranslationsExport, $fileContent);
+                $prettyTranslationsExport = $this->prettyVarExport->call($translations, ['array-align' => true]);
+                $fileContent = str_replace('{{translations}}', $prettyTranslationsExport, $fileContent);
 
-            $this->filesystem->put($groupFile, $fileContent);
+                $this->filesystem->put($groupFile, $fileContent);
+            }
         }
     }
 
